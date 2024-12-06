@@ -8,7 +8,8 @@ class Character:
         self.max_health = health
         self.special_ability_1 = None
         self.special_ability_1 = None  
-        self.is_invincible = False 
+        self.is_invincible = False
+        self.turn_counter = 0
         
     def attack(self, opponent, damage):
         if opponent.is_invincible:
@@ -31,6 +32,15 @@ class Character:
             self.special_ability_2.activate(self, opponent)
         else:
             print("Invalid input. Choose 1 of 2 abilities!")
+            
+    def autouse_special_abilities(self, opponent):
+        choice = randint(1, 2)
+        if(choice == '1'):
+            print(f"{self.name} uses {self.special_ability_1.name}")
+            self.special_ability_1.activate(self, opponent)
+        else:
+            print(f"{self.name} uses {self.special_ability_2.name}")
+            self.special_ability_2.activate(self, opponent)
         
     def heal(self, heal_amt):
         health_after_heal = self.health + heal_amt
@@ -60,7 +70,7 @@ class Mage(Character):
         self.special_ability_1 = BlackOutSpell()
         self.special_ability_2 = Invisibility()
 
-            
+             
 # EvilWizard class (inherits from Character)
 class EvilWizard(Character):
     def __init__(self, name):
@@ -222,10 +232,7 @@ class ManaShield(SpecialAbility):
         
 def activate(self, player, opponent):
         self.activation_msg(player)
-        strikes = randint(1, 5)
-        for i in range(0, strikes):
-            player.attack(opponent, player.attack_power)
-        print(f"{player.name} hit {strikes} times!")
+        player.is_invincible = True
         
 def create_character():
     print("Choose your character class:")
@@ -281,7 +288,12 @@ def battle(player, wizard):
 
         if wizard.health > 0:
             wizard.regenerate()
-            wizard.attack(player, randint(0, wizard.attack_power))
+            wizard.turn_counter += 1
+            wizard.turn_counter %= 3
+            if wizard.turn_counter == 0:
+                wizard.autouse_special_abilities(player)
+            else:
+                wizard.attack(player, randint(0, wizard.attack_power))
             
         # Check combantant's hps to display victory and defeat messages
         if player.health <= 0:
